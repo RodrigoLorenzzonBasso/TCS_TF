@@ -15,7 +15,7 @@ TEST_TEAR_DOWN(Sort)
 
 TEST(Sort, TestSort1)
 {
-	int ar1[4] = {3,2,4,1};
+	int ar1[4] = {3,2,4,2};
 	int ar2[4] = {3,2,4,1};
 	int ar3[4] = {3,2,4,1};
 	int ar4[4] = {3,2,4,1};

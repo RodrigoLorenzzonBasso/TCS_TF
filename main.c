@@ -59,3 +59,78 @@ int main(int argc, char **argv) {
     printf("\n\n");
     return 0;
 }
+
+/**
+ * Method that receives a pointer to an array that will be sorted,
+ * his size and the constant of the method that will be used
+ * @param  array  Array to be sorted
+ * @param  size   Size of the array
+ * @param  method Sorting algorithm constant
+ * @return        Pointer to the sorted array
+ */
+int* sort_array(int *array, int size, int method){
+
+    switch(method){
+        case SELECTION:
+            start = clock();
+            selection_sort(array, size);
+            end = clock();
+        break;
+
+        case INSERTION:
+            start = clock();
+            insertion_sort(array, size);
+            end = clock();
+        break;
+
+        case SHELL:
+            start = clock();
+            shell_sort(array, size);
+            end = clock();
+        break;
+
+        case QUICK:
+            start = clock();
+            quick_sort(array, 0, size-1);
+            end = clock();
+        break;
+
+        case HEAP:
+            start = clock();
+            heap_sort(array, size);
+            end = clock();
+        break;
+
+        case MERGE:
+            start = clock();
+            merge_sort(array, size);
+            end = clock();
+        break;
+/*
+        case GPUQUICK:
+            start = clock();
+            gpu_qsort(array,size);
+            end = clock();
+        break;
+
+        case GPUMERGE:
+            start = clock();
+            gpumerge_sort(array,size);
+            end = clock();
+*/            
+    }
+    elapsed_time = (((double)(end-start))/CLOCKS_PER_SEC);
+    return array;
+}
+
+double get_elapsed_time(){
+    return elapsed_time;
+}
+
+int get_swaps(){
+    return numberOfSwaps;
+}
+
+int get_comparisons(){
+    return numberOfComparisons;
+}

@@ -1,5 +1,3 @@
-OSUPPER = $(shell uname -s 2>/dev/null | tr "[:lower:]" "[:upper:]")
-OSLOWER = $(shell uname -s 2>/dev/null | tr "[:upper:]" "[:lower:]")
 
 # internal flags
 CCFLAGS     :=
@@ -8,15 +6,6 @@ LDFLAGS     :=
 # Extra user flags
 EXTRA_LDFLAGS     ?=
 EXTRA_CCFLAGS     ?=
-
-
-# Debug build flags
-ifeq ($(dbg),1)
-      NVCCFLAGS += -g -G
-      TARGET := debug
-else
-      TARGET := release
-endif
 
 ALL_CCFLAGS :=
 ALL_CCFLAGS += $(addprefix -Xcompiler ,$(CCFLAGS))
@@ -30,6 +19,7 @@ ALL_LDFLAGS += $(addprefix -Xlinker ,$(EXTRA_LDFLAGS))
 GCCFLAGS = -g -Wall -Wfatal-errors 
 GCC = gcc
 SANITIZER = -fsanitize=address
+CCPCHECKFLAGS = --enable=all --suppress=missingIncludeSystem
 GCOVFLAGS = -fprofile-arcs -ftest-coverage
 
 SOURCES = array.c get_opt.c main.c sort.c
@@ -56,37 +46,10 @@ INPUT6 = -a merge -n 10 -s random
 
 .PHONY: clean cppcheck valgrind sanitizer unity
 
-
-################################################################################
-# This part modified by Eugenio Pacceli Reis da Fonseca
-# DCC/UFMG
-# Target rules
-#all: app
-
-#array.o:array.c
-#	gcc -o $@ -c $<
-
-#sort.o:sort.c
-#	gcc -o $@ -c $<
-
-#get_opt.o:get_opt.c
-#	gcc -o $@ -c $<
-
-#main.o:main.c
-#	gcc -o $@ -c $<
-
-#app: array.o sort.o get_opt.o main.o
-#	gcc $(ALL_LDFLAGS) -o $@ $+ $(LIBRARIES)
-
-#run: build
-#	./app
+all: clean cppcheck valgrind sanitizer unity
 	
-#all: clean cppcheck valgrind sanitizer unity
-
-all: clean cppcheck valgrind sanitizer
-
 cppcheck: $(SOURCES) $(TEST_SOURCES)
-	cppcheck --error-exitcode=1 $^
+	cppcheck $(CPPCHECKFLAGS) --error-exitcode=1 $^
 
 valgrind: $(SOURCES)
 	$(GCC) $(ALL_LDFLAGS) $(GCCFLAGS) -o $(EXEC) $^
@@ -107,7 +70,12 @@ sanitizer: $(SOURCES)
 	./$(EXEC) $(INPUT6)
 
 unity:
-	$(GCC) $(GCCFLAGS) $(UNITY_INC_DIRS) $(UNITY_SRC) -o $(UNITY_TARGET)
+	$(GCC) $(GCCFLAGS) $(GCOVFLAGS) $(UNITY_INC_DIRS) $(UNITY_SRC) -o $(UNITY_TARGET)
 	./$(UNITY_TARGET) -v
+	gcov -b sort.c
+
+app: array.c sort.c get_opt.c main.c
+	gcc array.c sort.c get_opt.c main.c -o $@
+
 clean:
 	rm -fr app $(EXEC) $(UNITY_TARGET) *.o cov* *.dSYM *.gcda *.gcno *.gcov
